@@ -1,5 +1,5 @@
 #include "primitivas.cpp"
-
+int MAX_TURN = 10;
 int main() {
   ContDisponibles *listaCont = crearListaCont();
   Jugador *jugadores = llenarJugador(1, &listaCont);
@@ -11,7 +11,12 @@ int main() {
   jugadores->prox->prox->prox = llenarJugador(4, &listaCont);
   cout << endl;
   jugadores->prox->prox->prox->prox = NULL;
-  mostrarJugador(jugadores);
+  int turno = 1;
+  while (turno <= MAX_TURN) {
+    nuevoTurno(&jugadores, turno);
+    turno++;
+  }
   limpiar(&jugadores);
+
   return 0;
 }
