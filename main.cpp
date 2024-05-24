@@ -1,20 +1,26 @@
 #include "FuncionesYDeclaraciones.cpp"
 
-int MAX_TURN = 10;
 int main() {
-  int input = 0;
-  cout << "---- BIENVENIDO A ECOWORLD ----" << endl << endl;
-  cout << "Indique cantidad de jugadores (2-4) \n>> ";
-  cin >> input;
-  int cantjug = numVal(input, 2, 4);
-  Jugador *jugadores = iniciarJugs(cantjug - 1);
-  cout << "Continentes asignados:" << endl;
+  int cantjug = 0;
+  color(hConsole, 10);
+  cout<<"O))))))))    O))       O))))     O))        O))    O))))     O)))))))    O))      O))))) \n";
+  cout<<"O))       O))   O))  O))    O))  O))        O))  O))    O))  O))    O))  O))      O))   O))\n";
+  cout<<"O))      O))       O))        O))O))   O)   O))O))        O))O))    O))  O))      O))    O))\n";
+  cout<<"O))))))  O))       O))        O))O))  O))   O))O))        O))O) O))      O))      O))    O))\n";
+  cout<<"O))      O))       O))        O))O)) O) O)) O))O))        O))O))  O))    O))      O))    O))\n";
+  cout<<"O))       O))   O))  O))     O)) O) O)    O))))  O))     O)) O))    O))  O))      O))   O))\n";
+  cout<<"O))))))))   O))))      O))))     O))        O))    O))))     O))      O))O))))))))O)))))\n\n"<<endl;
+  color(hConsole, 15);
+  // sleep(2000);
+  cantjug =
+      selecOp("Indique cantidad de jugadores (2-4)", "2", "3", "4", "", 3);
+  cantjug++;
+  Jugador *jugadores = iniciarJugs(cantjug);
   mostrarContAsig(jugadores);
-  cout << "----- QUE COMIENCE EL JUEGO! -----" << endl;
-  int turno = 1;
-  while (turno <= MAX_TURN) {
-    nuevoTurno(&jugadores, turno);
-    turno++;
+  cout << "QUE COMIENCE EL JUEGO!" << endl << endl << endl;
+  while (ronda <= MAX_RONDA) {
+    nuevaRonda(&jugadores);
+    ronda++;
   }
   return 0;
 }

@@ -1,23 +1,25 @@
+#include "EventosClimaticos.cpp"
 #include <conio.h>
 #include <cstdlib>
 #include <iostream>
-#include <random>
 #include <windows.h>
 
 #define color SetConsoleTextAttribute
 using namespace std;
 
-random_device rd;
 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
+int ronda = 1;
+int MAX_RONDA = 10;
+
 // CASILLAS DEL TABLERO CON LAS REGIONES
-string aper = " ||====================================||"
+string aper = " ||==============================||"
               "\n"
               " ||";
 
-string cier = "||  "
+string cier = " ||  "
               "\n"
-              " ||====================================||  "
+              " ||==============================||  "
               "\n";
 
 struct Region {
@@ -28,16 +30,54 @@ struct Region {
 
 struct Jugador {
   string nombre, contnom;
-  int ID, puntos, dinero, reputacion, voluntarios, prob_eventos, contnum;
+  int contnum, puntos, dinero, reputacion, voluntarios, prob_eventos;
   Jugador *prox;
   Region *regiones;
 };
 
-int aleat(int min, int max) {
-  uniform_int_distribution<int> dist(min, max);
-  int num = dist(rd);
-  return num;
+int selecOp(string pregunta, string resp1, string resp2, string resp3,
+            string resp4, int cantresp) {
+  char input;
+  int op = 1;
+  color(hConsole, 11);
+  cout << pregunta;
+  color(hConsole, 15);
+  do {
+    cout << endl << endl;
+    cout << "Utiliza las teclas '^' y 'v' para elegir tu opcion. Pulsa enter "
+            "para confirmar:"
+         << endl;
+    if (op == 1)
+      color(hConsole, 11);
+    cout << "1.- " << resp1 << endl;
+    color(hConsole, 15);
+    if (op == 2)
+      color(hConsole, 11);
+    cout << "2.- " << resp2 << endl;
+    color(hConsole, 15);
+    if (op == 3)
+      color(hConsole, 11);
+    cout << "3.- " << resp3 << endl;
+    color(hConsole, 15);
+    if (op == 4)
+      color(hConsole, 11);
+    if (resp4 != "") {
+      cout << "4.- " << resp4 << endl;
+      color(hConsole, 15);
+    }
+
+    input = getch();
+    while (input != 72 && input != 80 && input != 13)
+      input = getch();
+    if (input == 72 && op > 1)
+      op--;
+    else if (input == 80 && op < cantresp)
+      op++;
+
+  } while (input != 13);
+  return op;
 }
+
 int numVal(int num, int min, int max) {
   if (num > max || num < min) {
     cout << "ERROR, el eumero introducido no se encuentra dentro del rango "
@@ -50,14 +90,21 @@ int numVal(int num, int min, int max) {
   return num;
 }
 
-string nombreDif(Jugador *inicio, string nom) {
+string nomVal(Jugador *inicio, string nom) {
   Jugador *mover = inicio;
   while (mover != NULL) {
+    if (nom.length() == 0 || nom[0] == ' ') {
+      cout << "El nombre ingresado no puede estar vacío o empezar por un "
+              "espacio en blanco, por favor intente nuevamente: ";
+      cin >> nom;
+      nomVal(inicio, nom);
+      return nom;
+    }
     if (nom == mover->nombre) {
       cout << "El nombre ingresado ya fue ocupado, por favor intente "
               "nuevamente: ";
       cin >> nom;
-      nombreDif(inicio, nom);
+      nomVal(inicio, nom);
       return nom;
     }
     mover = mover->prox;
@@ -130,11 +177,9 @@ Region *crearRegiones(string r1, string r2, string r3, string r4, string r5) {
 
 Jugador *crearJugador(Jugador *inicio, int numjug) {
   Jugador *nuevo = new Jugador;
-  nuevo->ID = numjug;
-  string nombre;
   cout << "Jugador nro [" << numjug << "] por favor indica tu nombre\n>>: ";
-  cin >> nombre;
-  nuevo->nombre = nombreDif(inicio, nombre);
+  cin >> nuevo->nombre;
+  nuevo->nombre = nomVal(inicio, nuevo->nombre);
   nuevo->puntos = 0;
   nuevo->voluntarios = 0;
   nuevo->dinero = 1000;
@@ -185,36 +230,74 @@ Jugador *crearJugador(Jugador *inicio, int numjug) {
 }
 
 Jugador *iniciarJugs(int cantjug) {
+  cout << endl << endl;
   int numjug = 1;
   Jugador *inicio = NULL;
-  inicio = crearJugador(inicio, 1);
+  inicio = crearJugador(inicio, numjug);
+  cantjug--;
+  numjug++;
   Jugador *anterior = inicio;
   Jugador *aux = NULL;
-  numjug++;
   while (cantjug > 0) {
+    cout << endl;
     aux = crearJugador(inicio, numjug);
     anterior->prox = aux;
     anterior = aux;
-    numjug++;
     cantjug--;
+    numjug++;
   }
   return inicio;
 }
 
 void mostrarContAsig(Jugador *actual) {
+  color(hConsole, 11);
+  cout << endl
+       << endl
+       << endl
+       << "Asignando continentes . . ." << endl
+       << endl
+       << endl;
+  color(hConsole, 15);
+  Sleep(3000);
   while (actual != NULL) {
-    cout << " A el jugador '" << actual->nombre
-         << "' le corresponde proteger al continente: " << actual->contnom
+    cout << " A el jugador '";
+    color(hConsole, 11);
+    cout << actual->nombre;
+    color(hConsole, 15);
+    cout << "' le corresponde proteger el continente: " << actual->contnom
+         << endl
          << endl;
     actual = actual->prox;
+    Sleep(1000);
   }
+  Sleep(3000);
+}
+
+void mostrarJugador(Jugador *actual) {
+  cout << endl;
+  color(hConsole, 11);
+  cout << "____________________________________________________________________"
+          "_____________________________"
+       << endl;
+  cout << "Ronda nro: " << ronda
+       << "                                       Jugador: " << actual->nombre
+       << "(" << actual->contnom << ")"
+       << "\n";
+  cout << "Dinero: " << actual->dinero
+       << " $ |  Reputacion:" << actual->reputacion
+       << " | Voluntarios en la region: " << actual->voluntarios
+       << " | Puntos: " << actual->puntos << endl;
+  cout << "____________________________________________________________________"
+          "_____________________________"
+       << endl;
+  color(hConsole, 15);
 }
 
 void mostrarRe(Region *inicio, Region *actualRe) {
-  cout << "Utiliza las flechas '^' y 'v' para seleccionar la region que deseas "
-          "visitar."
+  cout << endl << endl;
+  cout << "Utiliza las teclas '^' y 'v' para seleccionar la region que deseas "
+          "visitar. Pulsa enter para confirmar"
        << endl;
-  cout << "Pulsa enter para confirmar" << endl;
   Region *auxRe = inicio;
   while (auxRe != NULL) {
     if (auxRe == actualRe) {
@@ -234,20 +317,21 @@ void mostrarRe(Region *inicio, Region *actualRe) {
 
 Region *selectRe(Jugador *actual) {
   char input;
-  Region *actualRe = actual->regiones;
-  cout << endl << endl;
+  Region *actualRe = NULL;
   mostrarRe(actual->regiones, actualRe);
+  actualRe = actual->regiones;
   do {
     input = getch();
     if (input == 72 && actualRe->prevre != NULL) {
       actualRe = actualRe->prevre;
-      cout << endl << endl;
+      mostrarJugador(actual);
       mostrarRe(actual->regiones, actualRe);
     } else if (input == 80 && actualRe->proxre != NULL) {
       actualRe = actualRe->proxre;
-      cout << endl << endl;
+      mostrarJugador(actual);
       mostrarRe(actual->regiones, actualRe);
     } else if (input == 13) {
+      cout << endl;
       cout << "Se ha seleccionado la region: " + actualRe->renom << endl
            << endl;
     }
@@ -268,101 +352,108 @@ bool eventosEnTodas(Region *mover) {
     return false;
 }
 
-void crearEvento(Region *inicio) {
-  if (eventosEnTodas(inicio))
-    return;
+Evento *crearEvento(Region *inicio) {
+  if (eventosEnTodas(
+          inicio)) // Verifica que no hayan eventos en todas las regiones
+    return NULL;
   int cont;
   Region *eventRe;
   do {
     eventRe = inicio;
     cont = aleat(0, 4);
-    while (cont > 0) {
+    while (cont > 0) { // Selecciona una de las regiones
       eventRe = eventRe->proxre;
       cont--;
     }
   } while (eventRe->numevento != 0);
-  eventRe->numevento = aleat(1, 3);
+  Evento *Obt = ObtEvent(Lista_Eventos, aleat(1, 15));
+  eventRe->numevento = Obt->EventoID;
   color(hConsole, 14);
-  cout << "Hay un nuevo evento en la region " + eventRe->renom << endl;
+  cout << "Hay un nuevo evento en la region " + eventRe->renom + Obt->NombreEvento << endl;
   color(hConsole, 15);
+  return Obt;
 }
 
 void camp(Jugador *actual) {
-  cout << "Campaña realizada\n" << endl;
+  cout << "\n\n================\nHas concientizado de los problemas "
+          "ambientales en la region. Dinero +100$ - Voluntarios +2 - "
+          "Reputacion +5\n================"
+       << endl;
   actual->dinero += 100;
   actual->voluntarios += 2;
   actual->reputacion += 5;
 }
 
 void reclutar(Jugador *actual) {
-  cout << "Reclutaste voluntarios\n" << endl;
+  cout << "\n\n================\nHas reclutado nuevos voluntarios, sin embargo "
+          "tienes que comprar su equipo de trabajo. Dinero -50$ - Voluntarios "
+          "+8\n================"
+       << endl;
   actual->dinero -= 50;
-  actual->voluntarios += 5;
+  actual->voluntarios += 8;
 }
 
 void ayudar(Jugador *actual) {
-  cout << "Ayudaste a la region\n" << endl;
+  cout << "\n\n================\nAyudaste a la region. Dinero -200$ - "
+          "Voluntarios +10 - Puntos +"
+       << int((10 + actual->reputacion) / 2) << "\n================" << endl;
   actual->dinero -= 200;
   actual->voluntarios += 10;
-  actual->puntos += (10 + actual->reputacion) / 2;
+  actual->puntos += int((10 + actual->reputacion) / 2);
   actual->reputacion += 10;
 }
 
-void hacerEvento(Jugador *actual, Region *actualRe) {
-  int input;
-  bool salir = false;
-  switch (actualRe->numevento) {
-  case 1:
-    cout << "Evento de Deforestacion" << endl;
-    break;
-  case 2:
-    cout << "Evento de Acumulacion de Basura" << endl;
-    break;
-  case 3:
-    cout << "Evento de Contaminacion de Agua" << endl;
-    break;
+void MostrarRespDisponibles(Evento *RespDisp) {
+  while (RespDisp != NULL) {
+    cout << RespDisp->EventoID << ") " << RespDisp->Respuesta << endl;
+    RespDisp = RespDisp->prox;
   }
+}
+
+void hacerEvento(Jugador *actual, Region *actualRe, Evento *Obtenido) {
+  bool salir = false;
+  int ObtenidoPos = aleat(1, 4);
+  Evento *ListaRespDisp = CrearListaRespuestas(Obtenido, ObtenidoPos);
+  cout << "El evento es: " << Obtenido->NombreEvento << endl;
   while (!salir) {
-    cout << "Que vas a hacer?\n1) Para ayudar\n2) Para no hacer nada\n";
-    cin >> input;
-    int op = numVal(input, 1, 2);
-    switch (op) {
-    case 1:
-      cout << "Ayudaste a la region\n";
+    if (RespuestaAcertada(selecOp("Que vas a hacer?", ListaRespDisp->Respuesta,
+                                  ListaRespDisp->prox->Respuesta,
+                                  ListaRespDisp->prox->prox->Respuesta,
+                                  ListaRespDisp->prox->prox->prox->Respuesta,
+                                  4),
+                          ObtenidoPos)) { // AQUI
+      cout << "\n\n================\nRespuesta Correcta! Reputacion +15 Puntos +100\n================\n\n";
       actual->reputacion += 15;
+      actual->puntos += 100;
       actualRe->numevento = 0;
       salir = true;
-      break;
-    case 2:
-      cout << "No hiciste nada\n";
+    } else {
+      cout << "\n\n================\nRespuesta Incorrecta :c Reputacion -10 Puntos -50\n================\n\n";
       actual->reputacion -= 10;
+      actual->puntos -= 50;
       actualRe->tiempevento++;
       salir = true;
-      break;
     }
   }
+  freeEventList(&ListaRespDisp);
 }
 
-void mostrarJugador(Jugador *actual, int turno) {
-  cout << "Turno nro: " << turno << "\nJugador: " << actual->nombre << "\n";
-  cout << "Continente asignado: " << actual->contnom << endl;
-  cout << "Estadisticas:\nDinero: " << actual->dinero
-       << "\nReputacion: " << actual->reputacion
-       << "\nVoluntarios: " << actual->voluntarios
-       << "\nPuntos: " << actual->puntos << "\n"
-       << endl;
-}
-
-void acciones(Jugador *actual, Region *actualRe) {
+void acciones(Jugador *actual, Region *actualRe, Evento *Obtenido) {
   int input;
   bool salir = false;
+  cout << endl << endl;
   while (!salir) {
     if (actualRe->numevento != 0) {
       color(hConsole, 14);
       cout << "HAY UN EVENTO!" << endl;
       color(hConsole, 15);
-      cout << "Que vas a hacer?\n1) Para camp\n2) Para reclutar\n3) Para "
-              "ayudar\n4) Para hacer evento\n>>: ";
+      cout << "Que vas a hacer?\n1) Para camp (Dinero +100$ - Voluntarios +2 - "
+              "Reputacion +5)\n2) Para reclutar (Dinero -50$ - Voluntarios + "
+              "8)\n3) Para "
+              "ayudar (Dinero -200$ - Voluntarios +10 - Puntos +"
+           << int((10 + actual->reputacion) / 2)
+           << ")\n4) Para hacer evento (Respuesta Correcta: Puntos +100 || "
+              "Respuesta Incorrecta: Puntos -50 )\n>>: ";
       cin >> input;
       int op = numVal(input, 1, 4);
       switch (op) {
@@ -379,13 +470,16 @@ void acciones(Jugador *actual, Region *actualRe) {
         salir = true;
         break;
       case 4:
-        hacerEvento(actual, actualRe);
+        hacerEvento(actual, actualRe, Obtenido);
         salir = true;
         break;
       }
     } else {
-      cout << "Que vas a hacer?\n1) Para camp\n2) Para reclutar\n3) Para "
-              "ayudar\n>>: ";
+      cout << "Que vas a hacer?\n1) Para camp (Dinero +100$ - Voluntarios +2 - "
+              "Reputacion +5)\n2) Para reclutar (Dinero -50$ - Voluntarios + "
+              "8)\n3) Para "
+              "ayudar (Dinero -200$ - Voluntarios +10 - Puntos +"
+           << int((10 + actual->reputacion) / 2) << ")\n>>: ";
       cin >> input;
       int op = numVal(input, 1, 3);
       cout << endl;
@@ -408,19 +502,26 @@ void acciones(Jugador *actual, Region *actualRe) {
   }
 }
 
-void nuevoTurno(Jugador **inicio, int turno) {
+void nuevaRonda(Jugador **inicio) {
   Jugador *actual = *inicio;
   int x;
+  Sleep(1500);
+  color(hConsole, 10);
+  cout << endl
+       << "-----------------------------------  RONDA" << ronda
+       << "  ----------------------------------- " << endl;
+  color(hConsole, 15);
+  Sleep(2500);
   while (actual != NULL) {
-    mostrarJugador(actual, turno);
+    mostrarJugador(actual);
     x = aleat(1, 10);
     if (x + actual->prob_eventos >= 10) {
       actual->prob_eventos = 0;
-      crearEvento(actual->regiones);
-      acciones(actual, selectRe(actual));
+      Evento *Obtenido = crearEvento(actual->regiones);
+      acciones(actual, selectRe(actual), Obtenido);
     } else {
       actual->prob_eventos += 3;
-      acciones(actual, selectRe(actual));
+      acciones(actual, selectRe(actual), NULL);
     }
     actual = actual->prox;
   }
