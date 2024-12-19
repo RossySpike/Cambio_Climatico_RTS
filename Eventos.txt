@@ -1,0 +1,30 @@
+Terremoto
+Construir estructuras resistentes a los terremotos y tener un plan de emergencia.
+Inundacion
+Construir barreras como diques y muros de contencion, y reubicar a las personas en zonas seguras.
+Sequia
+Implementar tecnicas de conservacion del agua y desarrollar cultivos resistentes a la sequia.
+Tormenta de nieve
+Limpiar la nieve de las vias
+Huracan
+Refugiar a las personas en estructuras resistentes y/o debajo de la tierra.
+Desechos Toxicos
+Sanitizar toda la zona y recoger los desechos
+Tsunami
+Evacuar a las personas a un lugar seguro y rescatar a las que se hayan quedado atrapadas por el agua.
+Erupcion volcanica
+Evacuar a las personas del area de erupcion y del area de cenizas
+Deslizamiento de tierra
+Estabilizar las laderas y reubicar a las personas en zonas seguras.
+Calentamiento global
+Reducir las emisiones de gases de efecto invernadero y promover la energia renovable.
+Perdida de biodiversidad
+Proteger los habitats naturales y promover la conservacion de la biodiversidad.
+Contaminacion del aire
+Reducir las emisiones de contaminantes y promover la calidad del aire.
+Contaminacion del agua
+Tratar las aguas residuales y promover la conservacion del agua.
+Deforestacion
+Plantar arboles y promover la gestion sostenible de los bosques.
+Apagon
+Proporcionar velas y baterias.
